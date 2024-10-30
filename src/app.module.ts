@@ -3,6 +3,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
     imports: [
@@ -18,12 +20,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
                 database: configService.get<string>('DB_NAME'),
                 entities: [__dirname + '/**/*.entity{.ts,.js}'],
                 migrations: [__dirname + '/db/migrations/*{.ts,.js}'],
-                synchronize: false,
+                synchronize: true,
             }),
         }),
         ConfigModule.forRoot({
             isGlobal: true,
         }),
+        UserModule,
+        AuthModule,
     ],
     controllers: [AppController],
     providers: [AppService],
