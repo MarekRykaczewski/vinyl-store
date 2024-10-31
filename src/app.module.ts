@@ -5,6 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { VinylRecordsModule } from './vinyl-records/vinyl-records.module';
+import { DiscogsHelperModule } from './discogs-helper/discogs-helper.module';
 
 @Module({
     imports: [
@@ -28,6 +30,8 @@ import { AuthModule } from './auth/auth.module';
         }),
         UserModule,
         AuthModule,
+        VinylRecordsModule,
+        DiscogsHelperModule,
     ],
     controllers: [AppController],
     providers: [AppService],
