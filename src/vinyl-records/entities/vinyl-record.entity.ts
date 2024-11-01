@@ -5,7 +5,7 @@ import {
     OneToMany,
     CreateDateColumn,
 } from 'typeorm';
-import { Review } from './review.entity';
+import { Review } from '../../review/entities/review.entity';
 
 @Entity('vinyl_records')
 export class VinylRecord {

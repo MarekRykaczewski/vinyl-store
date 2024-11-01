@@ -4,8 +4,10 @@ import {
     Column,
     ManyToOne,
     CreateDateColumn,
+    JoinColumn,
 } from 'typeorm';
-import { VinylRecord } from './vinyl-record.entity';
+import { VinylRecord } from '../../vinyl-records/entities/vinyl-record.entity';
+import { User } from 'src/user/user.entity';
 
 @Entity('reviews')
 export class Review {
@@ -20,6 +22,10 @@ export class Review {
 
   @CreateDateColumn()
       createdAt: Date;
+
+  @ManyToOne(() => User, (user) => user.reviews, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userId' })
+      user: User;
 
   @ManyToOne(() => VinylRecord, (vinylRecord) => vinylRecord.reviews)
       vinylRecord: VinylRecord;

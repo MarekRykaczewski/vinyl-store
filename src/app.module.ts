@@ -7,6 +7,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { VinylRecordsModule } from './vinyl-records/vinyl-records.module';
 import { DiscogsHelperModule } from './discogs-helper/discogs-helper.module';
+import { ReviewModule } from './review/review.module';
 
 @Module({
     imports: [
@@ -32,6 +33,7 @@ import { DiscogsHelperModule } from './discogs-helper/discogs-helper.module';
         AuthModule,
         VinylRecordsModule,
         DiscogsHelperModule,
+        ReviewModule,
     ],
     controllers: [AppController],
     providers: [AppService],

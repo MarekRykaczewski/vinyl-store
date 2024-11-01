@@ -1,6 +1,6 @@
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { User } from 'src/user/user.entity';
-import { Review } from 'src/vinyl-records/entities/review.entity';
+import { Review } from 'src/review/entities/review.entity';
 import { VinylRecord } from 'src/vinyl-records/entities/vinyl-record.entity';
 import { DataSource } from 'typeorm';
 
