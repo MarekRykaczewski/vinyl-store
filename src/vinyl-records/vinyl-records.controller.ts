@@ -6,12 +6,20 @@ import { VinylRecordDto } from './dto/vinyl-records.dto';
 export class VinylRecordsController {
     constructor(private readonly vinylRecordsService: VinylRecordsService) {}
 
-    @Get()
+  @Get()
     async getVinylRecords(
-        @Query('page') page = 1,
-        @Query('limit') limit = 10,
-    ): Promise<{ data: VinylRecordDto[]; total: number; currentPage: number; totalPages: number; }> {
-        const { data, total } = await this.vinylRecordsService.getVinylRecords(page, limit);
+    @Query('page') page = 1,
+    @Query('limit') limit = 10
+    ): Promise<{
+    data: VinylRecordDto[];
+    total: number;
+    currentPage: number;
+    totalPages: number;
+  }> {
+        const { data, total } = await this.vinylRecordsService.getVinylRecords(
+            page,
+            limit
+        );
         const totalPages = Math.ceil(total / limit);
 
         return {

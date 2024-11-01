@@ -30,7 +30,7 @@ export class AuthController {
       const jwt = this.authService.generateJwt(user);
 
       // Set JWT
-      res.cookie('jwt', jwt, { httpOnly: true }); 
-      res.redirect('/'); 
+      res.cookie('jwt', jwt, { httpOnly: true });
+      res.redirect('/');
   }
 }

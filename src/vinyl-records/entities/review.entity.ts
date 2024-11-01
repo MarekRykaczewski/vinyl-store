@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from 'typeorm';
+import {
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    ManyToOne,
+    CreateDateColumn,
+} from 'typeorm';
 import { VinylRecord } from './vinyl-record.entity';
 
 @Entity('reviews')
@@ -15,6 +21,6 @@ export class Review {
   @CreateDateColumn()
       createdAt: Date;
 
-  @ManyToOne(() => VinylRecord, vinylRecord => vinylRecord.reviews)
+  @ManyToOne(() => VinylRecord, (vinylRecord) => vinylRecord.reviews)
       vinylRecord: VinylRecord;
 }

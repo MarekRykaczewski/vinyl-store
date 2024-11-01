@@ -2,6 +2,6 @@ import { Module } from '@nestjs/common';
 import { DiscogsService } from './discogs-helper.service';
 
 @Module({
-    providers: [DiscogsService]
+    providers: [DiscogsService],
 })
 export class DiscogsHelperModule {}

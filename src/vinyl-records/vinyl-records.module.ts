@@ -7,6 +7,6 @@ import { VinylRecord } from './entities/vinyl-record.entity';
 @Module({
     imports: [TypeOrmModule.forFeature([VinylRecord])],
     providers: [VinylRecordsService],
-    controllers: [VinylRecordsController]
+    controllers: [VinylRecordsController],
 })
 export class VinylRecordsModule {}

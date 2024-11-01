@@ -7,12 +7,15 @@ import { VinylRecordDto } from './dto/vinyl-records.dto';
 @Injectable()
 export class VinylRecordsService {
     constructor(
-        @InjectRepository(VinylRecord)
-        private readonly vinylRecordRepository: Repository<VinylRecord>,
+    @InjectRepository(VinylRecord)
+    private readonly vinylRecordRepository: Repository<VinylRecord>
     ) {}
 
     // TODO: First Review and Average Score
-    async getVinylRecords(page: number, limit: number): Promise<{ data: VinylRecordDto[]; total: number; }> {
+    async getVinylRecords(
+        page: number,
+        limit: number
+    ): Promise<{ data: VinylRecordDto[]; total: number }> {
         const [records, total] = await this.vinylRecordRepository.findAndCount({
             skip: (page - 1) * limit,
             take: limit,
@@ -20,7 +23,7 @@ export class VinylRecordsService {
         });
 
         // Map entities to DTOs
-        const data = records.map(record => ({
+        const data = records.map((record) => ({
             id: record.id,
             name: record.name,
             authorName: record.authorName,
