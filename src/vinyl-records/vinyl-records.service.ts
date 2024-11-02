@@ -38,6 +38,44 @@ export class VinylRecordsService {
         return { data, total };
     }
 
+    async searchAndSortVinylRecords(
+        searchTerm: string,
+        sortBy: 'price' | 'name' | 'authorName',
+        order: 'ASC' | 'DESC',
+        page: number,
+        limit: number
+    ) {
+        const query = this.vinylRecordRepository.createQueryBuilder('vinylRecord');
+
+        // Filter by search term if provided
+        if (searchTerm) {
+            query.where(
+                'vinylRecord.name LIKE :searchTerm OR vinylRecord.authorName LIKE :searchTerm',
+                { searchTerm: `%${searchTerm}%` }
+            );
+        }
+
+        // Apply sorting
+        if (sortBy) {
+            query.orderBy(`vinylRecord.${sortBy}`, order);
+        }
+
+        // Pagination
+        const offset = (page - 1) * limit;
+        query.skip(offset).take(limit);
+
+        // Execute query and get total count for pagination
+        const [data, total] = await query.getManyAndCount();
+        const totalPages = Math.ceil(total / limit);
+
+        return {
+            data,
+            total,
+            currentPage: page,
+            totalPages,
+        };
+    }
+
     async create(
         createVinylRecordDto: CreateVinylRecordDto
     ): Promise<VinylRecord> {

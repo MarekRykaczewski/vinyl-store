@@ -47,6 +47,23 @@ export class VinylRecordsController {
         };
     }
 
+  @Get('search')
+  async searchVinylRecords(
+    @Query('searchTerm') searchTerm: string,
+    @Query('sortBy') sortBy: 'price' | 'name' | 'authorName',
+    @Query('order') order: 'ASC' | 'DESC' = 'ASC',
+    @Query('page') page = 1,
+    @Query('limit') limit = 10
+  ) {
+      return await this.vinylRecordsService.searchAndSortVinylRecords(
+          searchTerm,
+          sortBy,
+          order,
+          page,
+          limit
+      );
+  }
+
   @Post()
   @UseGuards(AuthGuard('jwt'), AdminGuard)
   async createVinylRecord(@Body() createVinylRecordDto: CreateVinylRecordDto) {
