@@ -14,11 +14,11 @@ import { AdminGuard } from 'src/auth/guards/admin.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 
-@Controller('vinyl-records/:vinylRecordId/reviews')
+@Controller('vinyl-records')
 export class ReviewController {
     constructor(private readonly reviewService: ReviewService) {}
 
-  @Post()
+  @Post('/:vinylRecordId/reviews')
     async createReview(
     @Param('vinylRecordId') vinylRecordId: number,
     @Body('comment') comment: string,
@@ -37,7 +37,7 @@ export class ReviewController {
       return { message: 'Review deleted successfully' };
   }
 
-  @Get()
+  @Get('/:vinylRecordId/reviews')
   async getReviewsByVinylRecord(
     @Param('vinylRecordId') vinylRecordId: number,
     @Query('page') page = 1,
