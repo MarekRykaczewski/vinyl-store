@@ -1,7 +1,9 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { VinylRecordsService } from './vinyl-records.service';
 import { VinylRecordDto } from './dto/vinyl-records.dto';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('vinyl-records')
 export class VinylRecordsController {
     constructor(private readonly vinylRecordsService: VinylRecordsService) {}
