@@ -8,7 +8,8 @@ import { AuthModule } from './auth/auth.module';
 import { VinylRecordsModule } from './vinyl-records/vinyl-records.module';
 import { DiscogsHelperModule } from './discogs-helper/discogs-helper.module';
 import { ReviewModule } from './review/review.module';
-import { LoggerService } from './logger/logger.service';
+import { LoggerModule } from './logger/logger.module';
+import { WinstonLoggerService } from './logger/logger.service';
 
 @Module({
     imports: [
@@ -35,8 +36,9 @@ import { LoggerService } from './logger/logger.service';
         VinylRecordsModule,
         DiscogsHelperModule,
         ReviewModule,
+        LoggerModule,
     ],
     controllers: [AppController],
-    providers: [AppService, LoggerService],
+    providers: [AppService, WinstonLoggerService],
 })
 export class AppModule {}
