@@ -2,6 +2,7 @@ import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -32,5 +33,14 @@ export class AuthController {
       // Set JWT
       res.cookie('jwt', jwt, { httpOnly: true });
       return res.json({ token: jwt });
+  }
+
+  @ApiBearerAuth()
+  @Get('logout')
+  @UseGuards(AuthGuard('jwt'))
+  logout(@Res() res: Response) {
+      // Clear the JWT cookie
+      res.cookie('jwt', '', { httpOnly: true, expires: new Date(0) });
+      return res.send({ message: 'Logged out successfully' });
   }
 }
