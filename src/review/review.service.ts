@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeepPartial, Repository } from 'typeorm';
 import { Review } from './entities/review.entity';
@@ -14,6 +14,27 @@ export class ReviewService {
     @InjectRepository(VinylRecord)
     private vinylRecordRepository: Repository<VinylRecord>
     ) {}
+
+    async getReviewsByVinylRecord(
+        vinylRecordId: number,
+        page: number,
+        limit: number
+    ) {
+        const [data, total] = await this.reviewRepository.findAndCount({
+            where: { vinylRecord: { id: vinylRecordId } },
+            skip: (page - 1) * limit,
+            take: limit,
+        });
+
+        const totalPages = Math.ceil(total / limit);
+
+        return {
+            data,
+            total,
+            currentPage: page,
+            totalPages,
+        };
+    }
 
     // TODO: Add Guard
     async createReview(
@@ -35,5 +56,12 @@ export class ReviewService {
         } as DeepPartial<Review>);
 
         return this.reviewRepository.save(review);
+    }
+
+    async delete(id: number): Promise<void> {
+        const result = await this.reviewRepository.delete(id);
+        if (result.affected === 0) {
+            throw new NotFoundException('Review not found');
+        }
     }
 }

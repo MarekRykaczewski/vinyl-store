@@ -1,5 +1,18 @@
-import { Controller, Post, Param, Body, Req } from '@nestjs/common';
+import {
+    Controller,
+    Post,
+    Param,
+    Body,
+    Req,
+    Delete,
+    UseGuards,
+    Get,
+    Query,
+} from '@nestjs/common';
 import { ReviewService } from './review.service';
+import { AdminGuard } from 'src/auth/guards/admin.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('vinyl-records/:vinylRecordId/reviews')
 export class ReviewController {
@@ -15,4 +28,25 @@ export class ReviewController {
         const user = req.user;
         return this.reviewService.createReview(user, vinylRecordId, comment, score);
     }
+
+  @ApiBearerAuth()
+  @Delete(':id')
+  @UseGuards(AuthGuard('jwt'), AdminGuard)
+  async deleteReview(@Param('id') id: number): Promise<{ message: string }> {
+      await this.reviewService.delete(id);
+      return { message: 'Review deleted successfully' };
+  }
+
+  @Get()
+  async getReviewsByVinylRecord(
+    @Param('vinylRecordId') vinylRecordId: number,
+    @Query('page') page = 1,
+    @Query('limit') limit = 10
+  ) {
+      return await this.reviewService.getReviewsByVinylRecord(
+          vinylRecordId,
+          page,
+          limit
+      );
+  }
 }
