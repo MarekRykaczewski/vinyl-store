@@ -31,6 +31,6 @@ export class AuthController {
 
       // Set JWT
       res.cookie('jwt', jwt, { httpOnly: true });
-      res.redirect('/');
+      return res.json({ token: jwt });
   }
 }

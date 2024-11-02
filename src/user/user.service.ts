@@ -18,6 +18,10 @@ export class UserService {
         return this.userRepository.findOne({ where: { email } });
     }
 
+    async findOneById(id: any): Promise<User | undefined> {
+        return this.userRepository.findOne({ where: { id } });
+    }
+
     async create(userData: Partial<User>): Promise<User> {
         const user = this.userRepository.create(userData);
         return this.userRepository.save(user);

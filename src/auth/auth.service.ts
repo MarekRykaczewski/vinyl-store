@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
+import { User } from 'src/user/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -9,13 +10,15 @@ export class AuthService {
     private readonly jwtService: JwtService
     ) {}
 
+    // Validate or create a user based on the profile received from Google
     async validateOrCreateUser(profile: {
     email: string;
     firstName: string;
     lastName: string;
-  }) {
+  }): Promise<User> {
         let user = await this.userService.findOneByEmail(profile.email);
 
+        // If user does not exist, create a new user
         if (!user) {
             user = await this.userService.create({
                 email: profile.email,
@@ -27,8 +30,21 @@ export class AuthService {
         return user;
     }
 
-    generateJwt(user: { id: number; email: string }) {
+    // Generate JWT for the user
+    generateJwt(user: { id: number; email: string }): string {
         const payload = { userId: user.id, email: user.email };
         return this.jwtService.sign(payload);
+    }
+
+    // Authenticate user and generate JWT
+    async authenticateUser(profile: {
+    email: string;
+    firstName: string;
+    lastName: string;
+  }): Promise<{ token: string; user: User }> {
+        const user = await this.validateOrCreateUser(profile);
+        const token = this.generateJwt({ id: user.id, email: user.email });
+
+        return { token, user };
     }
 }
