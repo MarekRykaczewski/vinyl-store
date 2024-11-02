@@ -15,6 +15,9 @@ export class User {
   @Column({ type: 'varchar', unique: true })
       email: string;
 
+  @Column({ type: 'boolean', default: false })
+      isAdmin: boolean;
+
   @OneToMany(() => Review, (review) => review.user)
       reviews: Review[];
 }
