@@ -13,6 +13,14 @@ export class VinylRecordsService {
     private readonly vinylRecordRepository: Repository<VinylRecord>
     ) {}
 
+    async findOne(id: number): Promise<VinylRecord> {
+        const record = await this.vinylRecordRepository.findOne({ where: { id } });
+        if (!record) {
+            throw new NotFoundException(`Vinyl record with ID ${id} not found`);
+        }
+        return record;
+    }
+
     // TODO: First Review and Average Score
     async getVinylRecords(
         page: number,
