@@ -10,6 +10,7 @@ import { DiscogsHelperModule } from './discogs-helper/discogs-helper.module';
 import { ReviewModule } from './review/review.module';
 import { LoggerModule } from './logger/logger.module';
 import { WinstonLoggerService } from './logger/logger.service';
+import { PurchaseModule } from './purchase/purchase.module';
 
 @Module({
     imports: [
@@ -37,6 +38,7 @@ import { WinstonLoggerService } from './logger/logger.service';
         DiscogsHelperModule,
         ReviewModule,
         LoggerModule,
+        PurchaseModule,
     ],
     controllers: [AppController],
     providers: [AppService, WinstonLoggerService],
