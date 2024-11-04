@@ -8,5 +8,6 @@ import { VinylRecord } from './entities/vinyl-record.entity';
     imports: [TypeOrmModule.forFeature([VinylRecord])],
     providers: [VinylRecordsService],
     controllers: [VinylRecordsController],
+    exports: [VinylRecordsService],
 })
 export class VinylRecordsModule {}
