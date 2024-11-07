@@ -3,12 +3,18 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { UpdateUserProfileDto } from './dto/update-user-profile.dto';
+import { Purchase } from 'src/purchase/entities/purchase.entity';
+import { Review } from 'src/review/entities/review.entity';
 
 @Injectable()
 export class UserService {
     constructor(
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>
+    private readonly userRepository: Repository<User>,
+    @InjectRepository(Review)
+    private readonly reviewRepository: Repository<Review>,
+    @InjectRepository(Purchase)
+    private readonly purchaseRepository: Repository<Purchase>
     ) {}
 
     async findAll(): Promise<User[]> {
@@ -42,5 +48,29 @@ export class UserService {
         if (result.affected === 0) {
             throw new NotFoundException('User not found');
         }
+    }
+
+    async getUserReviews(userId: number): Promise<Review[]> {
+        const user = await this.findOneById(userId);
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+        return this.reviewRepository.find({
+            where: {
+                user: { id: userId },
+            },
+        });
+    }
+
+    async getUserPurchases(userId: number): Promise<Purchase[]> {
+        const user = await this.findOneById(userId);
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+        return this.purchaseRepository.find({
+            where: {
+                user: { id: userId },
+            },
+        });
     }
 }

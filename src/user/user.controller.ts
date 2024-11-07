@@ -42,4 +42,18 @@ export class UserController {
       await this.userService.deleteProfile(userId);
       return { message: 'Profile deleted successfully' };
   }
+
+  @Get('reviews')
+  async getUserReviews(@Req() req: Request) {
+      const userProfile = (req as Request & { user: any }).user;
+      const userId = userProfile.id;
+      return this.userService.getUserReviews(userId);
+  }
+
+  @Get('purchases')
+  async getUserPurchases(@Req() req: Request) {
+      const userProfile = (req as Request & { user: any }).user;
+      const userId = userProfile.id;
+      return this.userService.getUserPurchases(userId);
+  }
 }
