@@ -13,11 +13,11 @@ export class User {
   @Column('varchar')
       lastName: string;
 
-  @Column('varchar')
-      avatarUrl: string;
+  @Column({ type: 'varchar', nullable: true })
+      avatarUrl: string | null;
 
-  @Column('date')
-      birthdate: Date;
+  @Column({ type: 'date', nullable: true })
+      birthdate: Date | null;
 
   @Column({ type: 'varchar', unique: true })
       email: string;
