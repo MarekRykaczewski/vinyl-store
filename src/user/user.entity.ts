@@ -13,6 +13,12 @@ export class User {
   @Column('varchar')
       lastName: string;
 
+  @Column('varchar')
+      avatarUrl: string;
+
+  @Column('date')
+      birthdate: Date;
+
   @Column({ type: 'varchar', unique: true })
       email: string;
 
