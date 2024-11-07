@@ -11,6 +11,7 @@ import { ReviewModule } from './review/review.module';
 import { LoggerModule } from './logger/logger.module';
 import { WinstonLoggerService } from './logger/logger.service';
 import { PurchaseModule } from './purchase/purchase.module';
+import { ActivityModule } from './activity/activity.module';
 
 @Module({
     imports: [
@@ -39,6 +40,7 @@ import { PurchaseModule } from './purchase/purchase.module';
         ReviewModule,
         LoggerModule,
         PurchaseModule,
+        ActivityModule,
     ],
     controllers: [AppController],
     providers: [AppService, WinstonLoggerService],

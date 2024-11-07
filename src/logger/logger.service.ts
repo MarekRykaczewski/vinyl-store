@@ -1,13 +1,34 @@
 import { Injectable, LoggerService } from '@nestjs/common';
 import { createLogger, format, transports } from 'winston';
 import * as path from 'path';
+import * as fs from 'fs';
 
 @Injectable()
 export class WinstonLoggerService implements LoggerService {
     private readonly logger;
 
     constructor() {
-    // Define log format
+        const logDir = path.join(__dirname, '..', '..', 'logs');
+        const exceptionLogDir = path.join(
+            __dirname,
+            '..',
+            '..',
+            'logs',
+            'exceptions.log'
+        );
+        const rejectionLogDir = path.join(
+            __dirname,
+            '..',
+            '..',
+            'logs',
+            'rejections.log'
+        );
+        const logFilePath = path.join(logDir, 'app.log');
+
+        if (!fs.existsSync(logDir)) {
+            fs.mkdirSync(logDir, { recursive: true });
+        }
+
         const logFormat = format.combine(
             format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
             format.printf(
@@ -16,28 +37,26 @@ export class WinstonLoggerService implements LoggerService {
             )
         );
 
-        // Initialize logger
+        // Create a new logger
         this.logger = createLogger({
             level: 'info',
             format: logFormat,
             transports: [
-                // Transport to console
                 new transports.Console(),
-                // Transport to file
                 new transports.File({
-                    filename: path.join(__dirname, '..', 'logs', 'app.log'),
+                    filename: logFilePath,
                 }),
             ],
             exceptionHandlers: [
                 new transports.Console(),
                 new transports.File({
-                    filename: path.join(__dirname, '..', 'logs', 'exceptions.log'),
+                    filename: exceptionLogDir,
                 }),
             ],
             rejectionHandlers: [
                 new transports.Console(),
                 new transports.File({
-                    filename: path.join(__dirname, '..', 'logs', 'rejections.log'),
+                    filename: rejectionLogDir,
                 }),
             ],
         });
