@@ -18,6 +18,8 @@ import { AuthGuard } from '@nestjs/passport';
 export class ReviewController {
     constructor(private readonly reviewService: ReviewService) {}
 
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
   @Post('/:vinylRecordId/reviews')
     async createReview(
     @Param('vinylRecordId') vinylRecordId: number,
