@@ -10,6 +10,7 @@ import {
 import { PurchaseService } from './purchase.service';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import Stripe from 'stripe';
 
 @Controller('purchase')
 export class PurchaseController {
@@ -48,22 +49,14 @@ export class PurchaseController {
       let event;
 
       try {
-      // Call the service method to verify and construct the Stripe event
           event = this.purchaseService.verifyWebhookSignature(req.rawBody, sig);
       } catch (err) {
-      // If the signature verification fails
           return res.status(400).send(`Webhook Error: ${err.message}`);
       }
 
-      // Handle the event type
       if (event.type === 'checkout.session.completed') {
-          const session = event.data.object as any;
-          const userEmail = session.customer_email;
-          const vinylRecordName = 'Todo';
-          await this.purchaseService.sendPurchaseConfirmation(
-              userEmail,
-              vinylRecordName
-          );
+          const session = event.data.object as Stripe.Checkout.Session;
+          await this.purchaseService.handleCheckoutSessionCompleted(session);
       }
 
       res.json({ received: true });

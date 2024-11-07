@@ -3,6 +3,10 @@ import { Stripe } from 'stripe';
 import * as nodemailer from 'nodemailer';
 import { VinylRecordsService } from '../vinyl-records/vinyl-records.service';
 import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Purchase } from './entities/purchase.entity';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class PurchaseService {
@@ -11,7 +15,10 @@ export class PurchaseService {
 
     constructor(
     private readonly vinylRecordsService: VinylRecordsService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    private readonly userService: UserService,
+    @InjectRepository(Purchase)
+    private readonly purchaseRepository: Repository<Purchase>
     ) {
         this.stripe = new Stripe(this.configService.get('STRIPE_SECRET_KEY'));
         this.webhookSecret = this.configService.get<string>(
@@ -55,9 +62,39 @@ export class PurchaseService {
             success_url: `${this.configService.get('BASE_URL')}/purchase/success`,
             cancel_url: `${this.configService.get('BASE_URL')}/purchase/cancel`,
             customer_email: userEmail,
+            metadata: {
+                vinylRecordId: vinylRecord.id.toString(),
+            },
         });
 
         return session.url;
+    }
+
+    async handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
+        const userEmail = session.customer_email;
+        const vinylRecordId = +session.metadata.vinylRecordId;
+        const vinylRecord = await this.vinylRecordsService.findOne(vinylRecordId);
+        const vinylRecordName = vinylRecord ? vinylRecord.name : 'Unknown Record';
+
+        if (!vinylRecord) {
+            throw new Error('Vinyl record not found');
+        }
+
+        const user = await this.userService.findOneByEmail(userEmail);
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        // Create and save the purchase record
+        const purchase = this.purchaseRepository.create({
+            user,
+            vinylRecord,
+        });
+
+        await this.purchaseRepository.save(purchase);
+
+        // Send purchase confirmation email
+        await this.sendPurchaseConfirmation(userEmail, vinylRecordName);
     }
 
     async sendPurchaseConfirmation(email: string, vinylRecordName: string) {
