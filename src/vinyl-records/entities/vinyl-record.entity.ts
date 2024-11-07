@@ -6,6 +6,7 @@ import {
     CreateDateColumn,
 } from 'typeorm';
 import { Review } from '../../review/entities/review.entity';
+import { Purchase } from 'src/purchase/entities/purchase.entity';
 
 @Entity('vinyl_records')
 export class VinylRecord {
@@ -32,4 +33,7 @@ export class VinylRecord {
 
   @OneToMany(() => Review, (review) => review.vinylRecord)
       reviews: Review[];
+
+  @OneToMany(() => Purchase, (purchase) => purchase.vinylRecord)
+      purchases: Purchase[];
 }
