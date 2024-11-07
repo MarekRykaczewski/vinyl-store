@@ -1,10 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UseGuards } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { VinylRecord } from './entities/vinyl-record.entity';
 import { VinylRecordDto } from './dto/vinyl-records.dto';
 import { CreateVinylRecordDto } from './dto/create-vinyl-record.dto';
 import { UpdateVinylRecordDto } from './dto/update-vinyl-record.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Injectable()
 export class VinylRecordsService {
@@ -21,18 +23,52 @@ export class VinylRecordsService {
         return record;
     }
 
-    // TODO: First Review and Average Score
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
     async getVinylRecords(
         page: number,
         limit: number
     ): Promise<{ data: VinylRecordDto[]; total: number }> {
-        const [records, total] = await this.vinylRecordRepository.findAndCount({
-            skip: (page - 1) * limit,
-            take: limit,
-            order: { createdAt: 'DESC' },
-        });
+        const offset = (page - 1) * limit;
 
-        // Map entities to DTOs
+        const records = await this.vinylRecordRepository.query(
+            `
+            SELECT 
+                vr.id,
+                vr.name,
+                vr.authorName,
+                vr.description,
+                vr.price,
+                vr.imageUrl,
+                vr.createdAt,
+                AVG(r.score) AS averageScore,
+                -- Subquery to fetch the first review
+                (SELECT JSON_OBJECT(
+                    'id', r2.id,
+                    'content', r2.content,
+                    'score', r2.score,
+                    'createdAt', r2.createdAt,
+                    'userId', r2.userId
+                ) 
+                FROM reviews r2 
+                WHERE r2.vinylRecordId = vr.id 
+                ORDER BY r2.createdAt ASC
+                LIMIT 1) AS firstReview
+            FROM vinyl_records vr
+            LEFT JOIN reviews r ON r.vinylRecordId = vr.id
+            GROUP BY vr.id
+            ORDER BY vr.createdAt DESC
+            LIMIT ? OFFSET ?
+            `,
+            [limit, offset]
+        );
+
+        const totalResult = await this.vinylRecordRepository.query(
+            'SELECT COUNT(*) as total FROM vinyl_records'
+        );
+        const total = parseInt(totalResult[0].total, 10);
+
+        // Map SQL results to DTOs
         const data = records.map((record) => ({
             id: record.id,
             name: record.name,
@@ -41,73 +77,75 @@ export class VinylRecordsService {
             price: record.price,
             imageUrl: record.imageUrl,
             createdAt: record.createdAt,
+            averageScore: parseFloat(record.averageScore) || null,
+            firstReview: record.firstReview || null,
         }));
 
         return { data, total };
     }
 
-    async searchAndSortVinylRecords(
-        searchTerm: string,
-        sortBy: 'price' | 'name' | 'authorName',
-        order: 'ASC' | 'DESC',
-        page: number,
-        limit: number
-    ) {
-        const query = this.vinylRecordRepository.createQueryBuilder('vinylRecord');
+  async searchAndSortVinylRecords(
+      searchTerm: string,
+      sortBy: 'price' | 'name' | 'authorName',
+      order: 'ASC' | 'DESC',
+      page: number,
+      limit: number
+  ) {
+      const query = this.vinylRecordRepository.createQueryBuilder('vinylRecord');
 
-        // Filter by search term if provided
-        if (searchTerm) {
-            query.where(
-                'vinylRecord.name LIKE :searchTerm OR vinylRecord.authorName LIKE :searchTerm',
-                { searchTerm: `%${searchTerm}%` }
-            );
-        }
+      // Filter by search term if provided
+      if (searchTerm) {
+          query.where(
+              'vinylRecord.name LIKE :searchTerm OR vinylRecord.authorName LIKE :searchTerm',
+              { searchTerm: `%${searchTerm}%` }
+          );
+      }
 
-        // Apply sorting
-        if (sortBy) {
-            query.orderBy(`vinylRecord.${sortBy}`, order);
-        }
+      // Apply sorting
+      if (sortBy) {
+          query.orderBy(`vinylRecord.${sortBy}`, order);
+      }
 
-        // Pagination
-        const offset = (page - 1) * limit;
-        query.skip(offset).take(limit);
+      // Pagination
+      const offset = (page - 1) * limit;
+      query.skip(offset).take(limit);
 
-        // Execute query and get total count for pagination
-        const [data, total] = await query.getManyAndCount();
-        const totalPages = Math.ceil(total / limit);
+      // Execute query and get total count for pagination
+      const [data, total] = await query.getManyAndCount();
+      const totalPages = Math.ceil(total / limit);
 
-        return {
-            data,
-            total,
-            currentPage: page,
-            totalPages,
-        };
-    }
+      return {
+          data,
+          total,
+          currentPage: page,
+          totalPages,
+      };
+  }
 
-    async create(
-        createVinylRecordDto: CreateVinylRecordDto
-    ): Promise<VinylRecord> {
-        const vinylRecord = this.vinylRecordRepository.create(createVinylRecordDto);
-        return this.vinylRecordRepository.save(vinylRecord);
-    }
+  async create(
+      createVinylRecordDto: CreateVinylRecordDto
+  ): Promise<VinylRecord> {
+      const vinylRecord = this.vinylRecordRepository.create(createVinylRecordDto);
+      return this.vinylRecordRepository.save(vinylRecord);
+  }
 
-    async update(
-        id: number,
-        updateVinylRecordDto: UpdateVinylRecordDto
-    ): Promise<VinylRecord> {
-        await this.vinylRecordRepository.update(id, updateVinylRecordDto);
-        const updatedRecord = await this.vinylRecordRepository.findOne({
-            where: { id },
-        });
-        if (!updatedRecord)
-            throw new NotFoundException(`Record with ID ${id} not found`);
-        return updatedRecord;
-    }
+  async update(
+      id: number,
+      updateVinylRecordDto: UpdateVinylRecordDto
+  ): Promise<VinylRecord> {
+      await this.vinylRecordRepository.update(id, updateVinylRecordDto);
+      const updatedRecord = await this.vinylRecordRepository.findOne({
+          where: { id },
+      });
+      if (!updatedRecord)
+          throw new NotFoundException(`Record with ID ${id} not found`);
+      return updatedRecord;
+  }
 
-    async delete(id: number): Promise<void> {
-        const result = await this.vinylRecordRepository.delete(id);
-        if (result.affected === 0) {
-            throw new NotFoundException(`Record with ID ${id} not found`);
-        }
-    }
+  async delete(id: number): Promise<void> {
+      const result = await this.vinylRecordRepository.delete(id);
+      if (result.affected === 0) {
+          throw new NotFoundException(`Record with ID ${id} not found`);
+      }
+  }
 }
