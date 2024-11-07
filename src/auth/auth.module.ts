@@ -6,6 +6,7 @@ import { UserModule } from 'src/user/user.module';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { WinstonLoggerService } from 'src/logger/logger.service';
 
 @Module({
     imports: [
@@ -19,7 +20,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
             }),
         }),
     ],
-    providers: [AuthService, GoogleStrategy, JwtStrategy],
+    providers: [AuthService, GoogleStrategy, JwtStrategy, WinstonLoggerService],
     controllers: [AuthController],
     exports: [AuthService, JwtStrategy],
 })

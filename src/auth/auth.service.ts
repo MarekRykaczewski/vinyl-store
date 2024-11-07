@@ -2,12 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import { User } from 'src/user/user.entity';
+import { WinstonLoggerService } from 'src/logger/logger.service';
 
 @Injectable()
 export class AuthService {
     constructor(
     private readonly userService: UserService,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
+    private readonly logger: WinstonLoggerService
     ) {}
 
     // Validate or create a user based on the profile received from Google
@@ -25,6 +27,7 @@ export class AuthService {
                 firstName: profile.firstName,
                 lastName: profile.lastName,
             });
+            this.logger.log(`User ${user.id} created with email ${user.email}`);
         }
 
         return user;

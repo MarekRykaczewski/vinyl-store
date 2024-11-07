@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Purchase } from './entities/purchase.entity';
 import { UserService } from 'src/user/user.service';
+import { WinstonLoggerService } from 'src/logger/logger.service';
 
 @Injectable()
 export class PurchaseService {
@@ -18,7 +19,8 @@ export class PurchaseService {
     private readonly configService: ConfigService,
     private readonly userService: UserService,
     @InjectRepository(Purchase)
-    private readonly purchaseRepository: Repository<Purchase>
+    private readonly purchaseRepository: Repository<Purchase>,
+    private readonly logger: WinstonLoggerService
     ) {
         this.stripe = new Stripe(this.configService.get('STRIPE_SECRET_KEY'));
         this.webhookSecret = this.configService.get<string>(
@@ -92,6 +94,10 @@ export class PurchaseService {
         });
 
         await this.purchaseRepository.save(purchase);
+
+        this.logger.log(
+            `${userEmail} has purchased record with id ${vinylRecordId}`
+        );
 
         // Send purchase confirmation email
         await this.sendPurchaseConfirmation(userEmail, vinylRecordName);

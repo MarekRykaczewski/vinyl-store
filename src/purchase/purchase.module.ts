@@ -6,6 +6,7 @@ import { UserModule } from 'src/user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Purchase } from './entities/purchase.entity';
+import { WinstonLoggerService } from 'src/logger/logger.service';
 
 @Module({
     imports: [
@@ -14,7 +15,7 @@ import { Purchase } from './entities/purchase.entity';
         VinylRecordsModule,
         ConfigModule,
     ],
-    providers: [PurchaseService],
+    providers: [PurchaseService, WinstonLoggerService],
     controllers: [PurchaseController],
 })
 export class PurchaseModule {}

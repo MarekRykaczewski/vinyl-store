@@ -5,6 +5,7 @@ import { User } from './user.entity';
 import { UpdateUserProfileDto } from './dto/update-user-profile.dto';
 import { Purchase } from 'src/purchase/entities/purchase.entity';
 import { Review } from 'src/review/entities/review.entity';
+import { WinstonLoggerService } from 'src/logger/logger.service';
 
 @Injectable()
 export class UserService {
@@ -14,7 +15,8 @@ export class UserService {
     @InjectRepository(Review)
     private readonly reviewRepository: Repository<Review>,
     @InjectRepository(Purchase)
-    private readonly purchaseRepository: Repository<Purchase>
+    private readonly purchaseRepository: Repository<Purchase>,
+    private readonly logger: WinstonLoggerService
     ) {}
 
     async findAll(): Promise<User[]> {
@@ -31,6 +33,9 @@ export class UserService {
 
     async create(userData: Partial<User>): Promise<User> {
         const user = this.userRepository.create(userData);
+        this.logger.log(
+            `User created: ${user.firstName} ${user.lastName} with email ${user.email}`
+        );
         return this.userRepository.save(user);
     }
 
@@ -40,11 +45,13 @@ export class UserService {
     ): Promise<User> {
         const user = await this.findOneById(userId);
         Object.assign(user, updateData);
+        this.logger.log(`User updated: ${user.firstName} ${user.lastName}`);
         return this.userRepository.save(user);
     }
 
     async deleteProfile(userId: number): Promise<void> {
         const result = await this.userRepository.delete(userId);
+        this.logger.log(`User deleted: ${userId}`);
         if (result.affected === 0) {
             throw new NotFoundException('User not found');
         }

@@ -7,12 +7,14 @@ import { CreateVinylRecordDto } from './dto/create-vinyl-record.dto';
 import { UpdateVinylRecordDto } from './dto/update-vinyl-record.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { WinstonLoggerService } from 'src/logger/logger.service';
 
 @Injectable()
 export class VinylRecordsService {
     constructor(
     @InjectRepository(VinylRecord)
-    private readonly vinylRecordRepository: Repository<VinylRecord>
+    private readonly vinylRecordRepository: Repository<VinylRecord>,
+    private readonly logger: WinstonLoggerService
     ) {}
 
     async findOne(id: number): Promise<VinylRecord> {
@@ -126,6 +128,9 @@ export class VinylRecordsService {
       createVinylRecordDto: CreateVinylRecordDto
   ): Promise<VinylRecord> {
       const vinylRecord = this.vinylRecordRepository.create(createVinylRecordDto);
+      this.logger.log(
+          `Vinyl Record with id ${vinylRecord.id} created: ${vinylRecord.name} - ${vinylRecord.authorName}`
+      );
       return this.vinylRecordRepository.save(vinylRecord);
   }
 
@@ -139,6 +144,7 @@ export class VinylRecordsService {
       });
       if (!updatedRecord)
           throw new NotFoundException(`Record with ID ${id} not found`);
+      this.logger.log(`Vinyl Record updated: ${id}`);
       return updatedRecord;
   }
 
@@ -147,5 +153,6 @@ export class VinylRecordsService {
       if (result.affected === 0) {
           throw new NotFoundException(`Record with ID ${id} not found`);
       }
+      this.logger.log(`Vinyl Record deleted: ${id}`);
   }
 }
