@@ -20,6 +20,7 @@ import {
     ApiTags,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
+import { CreateReviewDto } from './dto/create-review.dto';
 
 @ApiTags('Vinyl Records')
 @Controller('vinyl-records')
@@ -45,15 +46,12 @@ export class ReviewController {
   })
     async createReview(
     @Param('vinylRecordId') vinylRecordId: number,
-    @Body('comment') comment: string,
-    @Body('score') score: number,
+    @Body() createReviewDto: CreateReviewDto,
     @Req() req
     ) {
         const user = req.user;
-        if (score < 1 || score > 5) {
-            throw new Error('Score must be between 1 and 5');
-        }
-        return this.reviewService.createReview(user, vinylRecordId, comment, score);
+        createReviewDto.vinylRecordId = vinylRecordId;
+        return this.reviewService.createReview(user, createReviewDto);
     }
 
   @ApiBearerAuth()
