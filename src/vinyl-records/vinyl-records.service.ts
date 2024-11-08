@@ -1,4 +1,10 @@
-import { Injectable, NotFoundException, UseGuards } from '@nestjs/common';
+import {
+    BadRequestException,
+    ConflictException,
+    Injectable,
+    NotFoundException,
+    UseGuards,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { VinylRecord } from './entities/vinyl-record.entity';
@@ -31,6 +37,10 @@ export class VinylRecordsService {
         page: number,
         limit: number
     ): Promise<{ data: VinylRecordDto[]; total: number }> {
+        if (page <= 0 || limit <= 0) {
+            throw new BadRequestException('Page and limit must be greater than 0');
+        }
+
         const offset = (page - 1) * limit;
 
         const records = await this.vinylRecordRepository.query(
@@ -93,6 +103,20 @@ export class VinylRecordsService {
       page: number,
       limit: number
   ) {
+      if (page <= 0 || limit <= 0) {
+          throw new BadRequestException('Page and limit must be greater than 0');
+      }
+
+      // Validate sortBy and order
+      const allowedSortBy = ['price', 'name', 'authorName'];
+      const allowedOrder = ['ASC', 'DESC'];
+
+      if (!allowedSortBy.includes(sortBy)) {
+          throw new BadRequestException(`Invalid sortBy value: ${sortBy}`);
+      }
+      if (!allowedOrder.includes(order)) {
+          throw new BadRequestException(`Invalid order value: ${order}`);
+      }
       const query = this.vinylRecordRepository.createQueryBuilder('vinylRecord');
 
       // Filter by search term if provided
@@ -127,6 +151,19 @@ export class VinylRecordsService {
   async create(
       createVinylRecordDto: CreateVinylRecordDto
   ): Promise<VinylRecord> {
+      const existingRecord = await this.vinylRecordRepository.findOne({
+          where: {
+              name: createVinylRecordDto.name,
+              authorName: createVinylRecordDto.authorName,
+          },
+      });
+
+      if (existingRecord) {
+          throw new ConflictException(
+              'A vinyl record with this name and author already exists'
+          );
+      }
+
       const vinylRecord = this.vinylRecordRepository.create(createVinylRecordDto);
       this.logger.log(
           `Vinyl Record with id ${vinylRecord.id} created: ${vinylRecord.name} - ${vinylRecord.authorName}`
@@ -138,12 +175,16 @@ export class VinylRecordsService {
       id: number,
       updateVinylRecordDto: UpdateVinylRecordDto
   ): Promise<VinylRecord> {
-      await this.vinylRecordRepository.update(id, updateVinylRecordDto);
-      const updatedRecord = await this.vinylRecordRepository.findOne({
-          where: { id },
-      });
-      if (!updatedRecord)
+      const record = await this.vinylRecordRepository.findOne({ where: { id } });
+
+      if (!record) {
           throw new NotFoundException(`Record with ID ${id} not found`);
+      }
+
+      // Update record with new data
+      this.vinylRecordRepository.merge(record, updateVinylRecordDto);
+      const updatedRecord = await this.vinylRecordRepository.save(record);
+
       this.logger.log(`Vinyl Record updated: ${id}`);
       return updatedRecord;
   }
