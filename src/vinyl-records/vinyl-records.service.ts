@@ -43,6 +43,10 @@ export class VinylRecordsService {
 
         const offset = (page - 1) * limit;
 
+        // Ensure limit and offset are integers
+        const validLimit = Math.max(0, parseInt(limit.toString(), 10)); // Make sure limit is positive
+        const validOffset = Math.max(0, parseInt(offset.toString(), 10)); // Ensure offset is non-negative
+
         const records = await this.vinylRecordRepository.query(
             `
             SELECT 
@@ -70,9 +74,8 @@ export class VinylRecordsService {
             LEFT JOIN reviews r ON r.vinylRecordId = vr.id
             GROUP BY vr.id
             ORDER BY vr.createdAt DESC
-            LIMIT ? OFFSET ?
-            `,
-            [limit, offset]
+            LIMIT ${validLimit} OFFSET ${validOffset}
+            `
         );
 
         const totalResult = await this.vinylRecordRepository.query(
