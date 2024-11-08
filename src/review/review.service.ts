@@ -39,7 +39,6 @@ export class ReviewService {
         };
     }
 
-    // TODO: Add Guard
     async createReview(
         user: User,
         vinylRecordId: number,
