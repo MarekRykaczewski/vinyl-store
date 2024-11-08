@@ -5,6 +5,7 @@ import { Review } from './entities/review.entity';
 import { VinylRecord } from 'src/vinyl-records/entities/vinyl-record.entity';
 import { User } from 'src/user/user.entity';
 import { WinstonLoggerService } from 'src/logger/logger.service';
+import { CreateReviewDto } from './dto/create-review.dto';
 
 @Injectable()
 export class ReviewService {
@@ -41,10 +42,10 @@ export class ReviewService {
 
     async createReview(
         user: User,
-        vinylRecordId: number,
-        content: string,
-        score: number
+        createReviewDto: CreateReviewDto
     ): Promise<Review> {
+        const { vinylRecordId, content, score } = createReviewDto;
+
         const vinylRecord = await this.vinylRecordRepository.findOne({
             where: { id: vinylRecordId },
         });
@@ -56,8 +57,12 @@ export class ReviewService {
             content,
             score,
         } as DeepPartial<Review>);
+        // Save review first to get an ID
+        const savedReview = await this.reviewRepository.save(review);
+
+        // Now `savedReview.id` should be defined
         this.logger.log(
-            `Review with id ${review.id} created for vinyl record: ${vinylRecord.id}`
+            `Review with id ${savedReview.id} created for vinyl record: ${vinylRecord.id}`
         );
         return this.reviewRepository.save(review);
     }
