@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Stripe } from 'stripe';
 import * as nodemailer from 'nodemailer';
 import { VinylRecordsService } from '../vinyl-records/vinyl-records.service';
@@ -32,75 +32,90 @@ export class PurchaseService {
         payload: Buffer,
         sig: string | string[]
     ): Stripe.Event {
-        return this.stripe.webhooks.constructEvent(
-            payload,
-            sig,
-            this.webhookSecret
-        );
+        try {
+            return this.stripe.webhooks.constructEvent(
+                payload,
+                sig,
+                this.webhookSecret
+            );
+        } catch (err) {
+            this.logger.error(
+                `Stripe Webhook Signature Verification Failed: ${err.message}`
+            );
+            throw new HttpException(
+                'Invalid webhook signature',
+                HttpStatus.BAD_REQUEST
+            );
+        }
     }
 
     async createCheckoutSession(vinylRecordId: number, userEmail: string) {
         const vinylRecord = await this.vinylRecordsService.findOne(vinylRecordId);
 
         if (!vinylRecord) {
-            throw new Error('Vinyl record not found');
+            this.logger.error(`Vinyl record with ID ${vinylRecordId} not found`);
+            throw new HttpException('Vinyl record not found', HttpStatus.NOT_FOUND);
         }
 
-        const session = await this.stripe.checkout.sessions.create({
-            payment_method_types: ['card'],
-            line_items: [
-                {
-                    price_data: {
-                        currency: 'usd',
-                        product_data: {
-                            name: vinylRecord.name,
+        try {
+            const session = await this.stripe.checkout.sessions.create({
+                payment_method_types: ['card'],
+                line_items: [
+                    {
+                        price_data: {
+                            currency: 'usd',
+                            product_data: {
+                                name: vinylRecord.name,
+                            },
+                            unit_amount: vinylRecord.price * 100,
                         },
-                        unit_amount: vinylRecord.price * 100,
+                        quantity: 1,
                     },
-                    quantity: 1,
+                ],
+                mode: 'payment',
+                success_url: `${this.configService.get('BASE_URL')}/purchase/success`,
+                cancel_url: `${this.configService.get('BASE_URL')}/purchase/cancel`,
+                customer_email: userEmail,
+                metadata: {
+                    vinylRecordId: vinylRecord.id.toString(),
                 },
-            ],
-            mode: 'payment',
-            success_url: `${this.configService.get('BASE_URL')}/purchase/success`,
-            cancel_url: `${this.configService.get('BASE_URL')}/purchase/cancel`,
-            customer_email: userEmail,
-            metadata: {
-                vinylRecordId: vinylRecord.id.toString(),
-            },
-        });
+            });
 
-        return session.url;
+            return session.url;
+        } catch (error) {
+            this.logger.error(
+                `Failed to create Stripe checkout session: ${error.message}`
+            );
+            throw new HttpException(
+                'Failed to initiate purchase',
+                HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
     }
 
     async handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
         const userEmail = session.customer_email;
         const vinylRecordId = +session.metadata.vinylRecordId;
-        const vinylRecord = await this.vinylRecordsService.findOne(vinylRecordId);
-        const vinylRecordName = vinylRecord ? vinylRecord.name : 'Unknown Record';
 
+        const vinylRecord = await this.vinylRecordsService.findOne(vinylRecordId);
         if (!vinylRecord) {
-            throw new Error('Vinyl record not found');
+            this.logger.error(
+                `Vinyl record with ID ${vinylRecordId} not found during purchase completion`
+            );
+            throw new HttpException('Vinyl record not found', HttpStatus.NOT_FOUND);
         }
 
         const user = await this.userService.findOneByEmail(userEmail);
         if (!user) {
-            throw new Error('User not found');
+            this.logger.error(`User with email ${userEmail} not found`);
+            throw new HttpException('User not found', HttpStatus.NOT_FOUND);
         }
 
-        // Create and save the purchase record
-        const purchase = this.purchaseRepository.create({
-            user,
-            vinylRecord,
-        });
-
+        const purchase = this.purchaseRepository.create({ user, vinylRecord });
         await this.purchaseRepository.save(purchase);
 
-        this.logger.log(
-            `${userEmail} has purchased record with id ${vinylRecordId}`
-        );
-
-        // Send purchase confirmation email
-        await this.sendPurchaseConfirmation(userEmail, vinylRecordName);
+        this.logger.log(`${userEmail} purchased record with ID ${vinylRecordId}`);
+        await this.sendPurchaseConfirmation(userEmail, vinylRecord.name);
     }
 
     async sendPurchaseConfirmation(email: string, vinylRecordName: string) {
