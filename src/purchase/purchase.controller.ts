@@ -53,7 +53,7 @@ export class PurchaseController {
                 vinylRecordId,
                 user.email
             );
-            return res.redirect(checkoutUrl);
+            return res.json({ checkoutUrl });
         } catch (error) {
             throw new HttpException(
                 error.message || 'Internal server error',
