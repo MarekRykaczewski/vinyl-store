@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import { User } from 'src/user/user.entity';
@@ -18,19 +18,26 @@ export class AuthService {
     firstName: string;
     lastName: string;
   }): Promise<User> {
-        let user = await this.userService.findOneByEmail(profile.email);
+        try {
+            let user = await this.userService.findOneByEmail(profile.email);
 
-        // If user does not exist, create a new user
-        if (!user) {
-            user = await this.userService.create({
-                email: profile.email,
-                firstName: profile.firstName,
-                lastName: profile.lastName,
-            });
-            this.logger.log(`User ${user.id} created with email ${user.email}`);
+            // If user does not exist, create a new user
+            if (!user) {
+                user = await this.userService.create({
+                    email: profile.email,
+                    firstName: profile.firstName,
+                    lastName: profile.lastName,
+                });
+                this.logger.log(`User ${user.id} created with email ${user.email}`);
+            }
+            return user;
+        } catch (error) {
+            this.logger.error(`Failed to validate or create user: ${error.message}`);
+            throw new HttpException(
+                'Unable to validate or create user',
+                HttpStatus.INTERNAL_SERVER_ERROR
+            );
         }
-
-        return user;
     }
 
     // Generate JWT for the user
