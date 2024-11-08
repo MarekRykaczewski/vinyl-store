@@ -1,17 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
-import { WinstonLoggerService } from 'src/logger/logger.service';
 
 @Injectable()
 export class ActivityService {
-    constructor(private readonly winstonLogger: WinstonLoggerService) {}
-
-    logActivity(action: string, entity: string, entityId: number) {
-        const message = `${action} action performed on ${entity} with ID ${entityId}`;
-        this.winstonLogger.log(message);
-    }
-
+    constructor() {}
     async readActivities() {
         const logFilePath = path.join(__dirname, '..', '..', 'logs', 'app.log');
 
