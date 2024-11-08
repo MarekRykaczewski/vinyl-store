@@ -28,7 +28,11 @@ export class UserService {
     }
 
     async findOneById(id: any): Promise<User | undefined> {
-        return this.userRepository.findOne({ where: { id } });
+        const user = await this.userRepository.findOne({ where: { id } });
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+        return user;
     }
 
     async create(userData: Partial<User>): Promise<User> {
@@ -51,10 +55,10 @@ export class UserService {
 
     async deleteProfile(userId: number): Promise<void> {
         const result = await this.userRepository.delete(userId);
-        this.logger.log(`User deleted: ${userId}`);
         if (result.affected === 0) {
             throw new NotFoundException('User not found');
         }
+        this.logger.log(`User deleted: ${userId}`);
     }
 
     async getUserReviews(userId: number): Promise<Review[]> {
@@ -62,11 +66,15 @@ export class UserService {
         if (!user) {
             throw new NotFoundException('User not found');
         }
-        return this.reviewRepository.find({
+        const reviews = this.reviewRepository.find({
             where: {
                 user: { id: userId },
             },
         });
+        if (!reviews) {
+            throw new NotFoundException('No reviews found');
+        }
+        return reviews;
     }
 
     async getUserPurchases(userId: number): Promise<Purchase[]> {
@@ -74,10 +82,14 @@ export class UserService {
         if (!user) {
             throw new NotFoundException('User not found');
         }
-        return this.purchaseRepository.find({
+        const purchases = await this.purchaseRepository.find({
             where: {
                 user: { id: userId },
             },
         });
+        if (!purchases.length) {
+            throw new NotFoundException('No purchases found');
+        }
+        return purchases;
     }
 }
