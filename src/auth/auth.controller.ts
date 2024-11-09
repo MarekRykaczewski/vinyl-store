@@ -11,6 +11,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { User } from 'src/user/user.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -43,7 +44,7 @@ export class AuthController {
   async googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
       try {
       // Extract user information from the request
-          const userProfile = (req as Request & { user: any }).user;
+          const userProfile = (req as Request & { user: User }).user;
           if (!userProfile) {
               throw new HttpException(
                   'Unauthorized - Google authentication failed',

@@ -16,6 +16,7 @@ import {
     ApiTags,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
+import { User } from './user.entity';
 
 @ApiTags('User')
 @ApiBearerAuth()
@@ -38,7 +39,7 @@ export class UserController {
       description: 'Unauthorized - Bearer token missing or invalid',
   })
     async getProfile(@Req() req: Request) {
-        const userProfile = (req as Request & { user: any }).user;
+        const userProfile = (req as Request & { user: User }).user;
         const userId = userProfile.id;
         return this.userService.findOneById(userId);
     }
@@ -64,7 +65,7 @@ export class UserController {
     @Req() req: Request,
     @Body() updateUserProfileDto: UpdateUserProfileDto
   ) {
-      const userProfile = (req as Request & { user: any }).user;
+      const userProfile = (req as Request & { user: User }).user;
       const userId = userProfile.id;
       return this.userService.updateProfile(userId, updateUserProfileDto);
   }
@@ -80,7 +81,7 @@ export class UserController {
       description: 'Unauthorized - Bearer token missing or invalid',
   })
   async deleteProfile(@Req() req: Request) {
-      const userProfile = (req as Request & { user: any }).user;
+      const userProfile = (req as Request & { user: User }).user;
       const userId = userProfile.id;
       await this.userService.deleteProfile(userId);
       return { message: 'Profile deleted successfully' };
@@ -100,7 +101,7 @@ export class UserController {
       description: 'Unauthorized - Bearer token missing or invalid',
   })
   async getUserReviews(@Req() req: Request) {
-      const userProfile = (req as Request & { user: any }).user;
+      const userProfile = (req as Request & { user: User }).user;
       const userId = userProfile.id;
       return this.userService.getUserReviews(userId);
   }
@@ -119,7 +120,7 @@ export class UserController {
       description: 'Unauthorized - Bearer token missing or invalid',
   })
   async getUserPurchases(@Req() req: Request) {
-      const userProfile = (req as Request & { user: any }).user;
+      const userProfile = (req as Request & { user: User }).user;
       const userId = userProfile.id;
       return this.userService.getUserPurchases(userId);
   }
