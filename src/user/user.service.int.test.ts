@@ -155,11 +155,21 @@ describe('UserService', () => {
             email: 'diana.taylor@example.com',
         });
 
+        const vinylRecord = new VinylRecord();
+        vinylRecord.name = 'Sample Album';
+        vinylRecord.authorName = 'Sample Author'; // Required field
+        vinylRecord.description = 'Sample description';
+        vinylRecord.price = 20.0; // Required field
+        vinylRecord.imageUrl = '';
+        await dataSource.getRepository(VinylRecord).save(vinylRecord);
+
         const purchase = new Purchase();
         purchase.user = user;
+        purchase.vinylRecord = vinylRecord;
         await purchaseRepository.save(purchase);
 
         const purchases = await userService.getUserPurchases(user.id);
         assert.strictEqual(purchases.length, 1); // Assert that there is one purchase
+        assert.strictEqual(purchases[0].vinylRecordId, vinylRecord.id);
     });
 });

@@ -4,6 +4,7 @@ import {
     ManyToOne,
     JoinColumn,
     CreateDateColumn,
+    Column,
 } from 'typeorm';
 import { User } from 'src/user/user.entity';
 import { VinylRecord } from 'src/vinyl-records/entities/vinyl-record.entity';
@@ -20,6 +21,9 @@ export class Purchase {
   @ManyToOne(() => VinylRecord, (vinylRecord) => vinylRecord.purchases)
   @JoinColumn({ name: 'vinylRecordId' })
       vinylRecord: VinylRecord;
+
+  @Column({ type: 'int', name: 'vinylRecordId' })
+      vinylRecordId: number;
 
   @CreateDateColumn()
       createdAt: Date;
