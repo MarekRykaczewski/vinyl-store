@@ -3,6 +3,7 @@ import { User } from 'src/user/user.entity';
 import { Review } from 'src/review/entities/review.entity';
 import { VinylRecord } from 'src/vinyl-records/entities/vinyl-record.entity';
 import { DataSource } from 'typeorm';
+import { Purchase } from 'src/purchase/entities/purchase.entity';
 
 ConfigModule.forRoot({
     envFilePath: [
@@ -21,7 +22,7 @@ export const AppDataSource = new DataSource({
     username: configService.get<string>('DB_USERNAME'),
     password: configService.get<string>('DB_PASSWORD'),
     database: configService.get<string>('DB_NAME'),
-    entities: [VinylRecord, User, Review],
+    entities: [VinylRecord, User, Review, Purchase],
     migrations: ['src/db/migrations/*.ts'],
     synchronize: false, // Make sure this is false for production
 });
