@@ -37,9 +37,11 @@ export class UserService {
 
     async create(userData: Partial<User>): Promise<User> {
         const user = this.userRepository.create(userData);
-        this.logger.log(
-            `User created: ${user.firstName} ${user.lastName} with email ${user.email}`
-        );
+        if (this.logger) {
+            this.logger.log(
+                `User created: ${user.firstName} ${user.lastName} with email ${user.email}`
+            );
+        }
         return this.userRepository.save(user);
     }
 
@@ -49,7 +51,9 @@ export class UserService {
     ): Promise<User> {
         const user = await this.findOneById(userId);
         Object.assign(user, updateData);
-        this.logger.log(`User updated: ${user.firstName} ${user.lastName}`);
+        if (this.logger) {
+            this.logger.log(`User updated: ${user.firstName} ${user.lastName}`);
+        }
         return this.userRepository.save(user);
     }
 
@@ -58,7 +62,9 @@ export class UserService {
         if (result.affected === 0) {
             throw new NotFoundException('User not found');
         }
-        this.logger.log(`User deleted: ${userId}`);
+        if (this.logger) {
+            this.logger.log(`User deleted: ${userId}`);
+        }
     }
 
     async getUserReviews(userId: number): Promise<Review[]> {
