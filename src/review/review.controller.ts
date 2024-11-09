@@ -80,6 +80,8 @@ export class ReviewController {
       return { message: 'Review deleted successfully' };
   }
 
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
   @Get('/:vinylRecordId/reviews')
   @ApiOperation({
       summary: 'Get reviews by vinyl record',
