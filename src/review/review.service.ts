@@ -61,15 +61,19 @@ export class ReviewService {
         const savedReview = await this.reviewRepository.save(review);
 
         // Now `savedReview.id` should be defined
-        this.logger.log(
-            `Review with id ${savedReview.id} created for vinyl record: ${vinylRecord.id}`
-        );
+        if (this.logger) {
+            this.logger.log(
+                `Review with id ${savedReview.id} created for vinyl record: ${vinylRecord.id}`
+            );
+        }
         return this.reviewRepository.save(review);
     }
 
     async delete(id: number): Promise<void> {
         const result = await this.reviewRepository.delete(id);
-        this.logger.log(`Review with id ${id} deleted`);
+        if (this.logger) {
+            this.logger.log(`Review with id ${id} deleted`);
+        }
         if (result.affected === 0) {
             throw new NotFoundException('Review not found');
         }
