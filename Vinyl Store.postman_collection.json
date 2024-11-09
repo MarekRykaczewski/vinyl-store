@@ -1,0 +1,442 @@
+{
+	"info": {
+		"_postman_id": "e238a4a0-a2f4-416b-b766-9a720c91ea9a",
+		"name": "Vinyl Store",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27501021"
+	},
+	"item": [
+		{
+			"name": "Create Account",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Base Url}}/auth/google",
+					"host": [
+						"{{Base Url}}"
+					],
+					"path": [
+						"auth",
+						"google"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User Profile",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{Bearer}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{Base Url}}/user/profile",
+					"host": [
+						"{{Base Url}}"
+					],
+					"path": [
+						"user",
+						"profile"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Profile",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{Bearer}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"firstName\": \"Marek\",\r\n    \"birthdate\": \"1999-01-01\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Base Url}}user/profile",
+					"host": [
+						"{{Base Url}}user"
+					],
+					"path": [
+						"profile"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create a vinyl record",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{Bearer}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"authorName\": \"The Beatles\",\r\n  \"name\": \"Abbey Road\",\r\n  \"description\": \"Classic album by The Beatles, featuring hits like 'Come Together' and 'Something'.\",\r\n  \"imageUrl\": \"https://example.com/abbey-road.jpg\",\r\n  \"price\": 29.99\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Base Url}}/vinyl-records",
+					"host": [
+						"{{Base Url}}"
+					],
+					"path": [
+						"vinyl-records"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all Vinyl Records",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{Bearer}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"authorName\": \"The Beatles\",\r\n  \"name\": \"Abbey Road\",\r\n  \"description\": \"Classic album by The Beatles, featuring hits like 'Come Together' and 'Something'.\",\r\n  \"imageUrl\": \"https://example.com/abbey-road.jpg\",\r\n  \"price\": 29.99\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Base Url}}/vinyl-records?limit=5&page=1",
+					"host": [
+						"{{Base Url}}"
+					],
+					"path": [
+						"vinyl-records"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "5"
+						},
+						{
+							"key": "page",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Vinyl Record",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{Bearer}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"test\",\r\n    \"price\": \"200\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Base Url}}/vinyl-records/1",
+					"host": [
+						"{{Base Url}}"
+					],
+					"path": [
+						"vinyl-records",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search Vinyl Records",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{Bearer}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{Base Url}}/vinyl-records/search?searchTerm=b&sortBy=price&order=DESC",
+					"host": [
+						"{{Base Url}}"
+					],
+					"path": [
+						"vinyl-records",
+						"search"
+					],
+					"query": [
+						{
+							"key": "searchTerm",
+							"value": "b"
+						},
+						{
+							"key": "sortBy",
+							"value": "price"
+						},
+						{
+							"key": "order",
+							"value": "DESC"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Review",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{Bearer}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"content\": \"I like this!\",\r\n    \"score\": 5\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Base Url}}/vinyl-records/1/reviews",
+					"host": [
+						"{{Base Url}}"
+					],
+					"path": [
+						"vinyl-records",
+						"1",
+						"reviews"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Reviews",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{Bearer}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{Base Url}}/vinyl-records/1/reviews",
+					"host": [
+						"{{Base Url}}"
+					],
+					"path": [
+						"vinyl-records",
+						"1",
+						"reviews"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User Reviews",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{Bearer}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{Base Url}}/user/reviews",
+					"host": [
+						"{{Base Url}}"
+					],
+					"path": [
+						"user",
+						"reviews"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Purchase Vinyl Record",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{Bearer}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{Base Url}}/purchase/checkout/1",
+					"host": [
+						"{{Base Url}}"
+					],
+					"path": [
+						"purchase",
+						"checkout",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User Purchases",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{Bearer}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{Base Url}}/user/purchases",
+					"host": [
+						"{{Base Url}}"
+					],
+					"path": [
+						"user",
+						"purchases"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Logs",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{Bearer}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{Base Url}}/activity",
+					"host": [
+						"{{Base Url}}"
+					],
+					"path": [
+						"activity"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Vinyl Record",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{Bearer}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{Base Url}}/vinyl-records/1",
+					"host": [
+						"{{Base Url}}"
+					],
+					"path": [
+						"vinyl-records",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Profile",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{Bearer}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{Base Url}}/user/profile",
+					"host": [
+						"{{Base Url}}"
+					],
+					"path": [
+						"user",
+						"profile"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
