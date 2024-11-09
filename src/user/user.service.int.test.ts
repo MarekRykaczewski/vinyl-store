@@ -125,8 +125,18 @@ describe('UserService', () => {
             email: 'charlie.brown@example.com',
         });
 
+        // Create and save a VinylRecord instance with required fields
+        const vinylRecord = new VinylRecord();
+        vinylRecord.name = 'Sample Album';
+        vinylRecord.authorName = 'Sample Author'; // Provide a value for authorName
+        vinylRecord.description = 'Sample description'; // Add other required fields as necessary
+        vinylRecord.price = 20.0; // Set a price value if required
+        vinylRecord.imageUrl = '';
+        await dataSource.getRepository(VinylRecord).save(vinylRecord);
+
         const review = new Review();
         review.user = user;
+        review.vinylRecord = vinylRecord; // Associate the vinylRecord with the review
         review.content = 'Great product!';
         review.score = 5;
         await reviewRepository.save(review);
@@ -135,6 +145,7 @@ describe('UserService', () => {
         assert.strictEqual(reviews.length, 1); // Assert that there is one review
         assert.strictEqual(reviews[0].content, 'Great product!'); // Assert the review content is 'Great product!'
         assert.strictEqual(reviews[0].score, 5);
+        assert.strictEqual(reviews[0].vinylRecordId, vinylRecord.id); // Ensure vinylRecordId is set correctly
     });
 
     it('should get a user\'s purchases', async () => {

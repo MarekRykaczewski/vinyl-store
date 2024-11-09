@@ -28,5 +28,9 @@ export class Review {
       user: User;
 
   @ManyToOne(() => VinylRecord, (vinylRecord) => vinylRecord.reviews)
+  @JoinColumn({ name: 'vinylRecordId' })
       vinylRecord: VinylRecord;
+
+  @Column({ type: 'int', name: 'vinylRecordId' })
+      vinylRecordId: number;
 }
