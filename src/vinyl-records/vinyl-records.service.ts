@@ -168,9 +168,15 @@ export class VinylRecordsService {
       }
 
       const vinylRecord = this.vinylRecordRepository.create(createVinylRecordDto);
-      this.logger.log(
-          `Vinyl Record with id ${vinylRecord.id} created: ${vinylRecord.name} - ${vinylRecord.authorName}`
-      );
+
+      const savedRecord = await this.vinylRecordRepository.save(vinylRecord);
+
+      if (this.logger) {
+          this.logger.log(
+              `Vinyl Record with id ${savedRecord.id} created: ${savedRecord.name} - ${savedRecord.authorName}`
+          );
+      }
+
       return this.vinylRecordRepository.save(vinylRecord);
   }
 
@@ -188,7 +194,10 @@ export class VinylRecordsService {
       this.vinylRecordRepository.merge(record, updateVinylRecordDto);
       const updatedRecord = await this.vinylRecordRepository.save(record);
 
-      this.logger.log(`Vinyl Record updated: ${id}`);
+      if (this.logger) {
+          this.logger.log(`Vinyl Record updated: ${id}`);
+      }
+
       return updatedRecord;
   }
 
@@ -197,6 +206,8 @@ export class VinylRecordsService {
       if (result.affected === 0) {
           throw new NotFoundException(`Record with ID ${id} not found`);
       }
-      this.logger.log(`Vinyl Record deleted: ${id}`);
+      if (this.logger) {
+          this.logger.log(`Vinyl Record deleted: ${id}`);
+      }
   }
 }
