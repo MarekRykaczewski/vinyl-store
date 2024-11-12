@@ -27,7 +27,9 @@ export class Review {
   @JoinColumn({ name: 'userId' })
       user: User;
 
-  @ManyToOne(() => VinylRecord, (vinylRecord) => vinylRecord.reviews)
+  @ManyToOne(() => VinylRecord, (vinylRecord) => vinylRecord.reviews, {
+      onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'vinylRecordId' })
       vinylRecord: VinylRecord;
 

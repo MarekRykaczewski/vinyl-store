@@ -28,6 +28,6 @@ export class User {
   @OneToMany(() => Review, (review) => review.user)
       reviews: Review[];
 
-  @OneToMany(() => Purchase, (purchase) => purchase.user)
+  @OneToMany(() => Purchase, (purchase) => purchase.user, { cascade: true })
       purchases: Purchase[];
 }

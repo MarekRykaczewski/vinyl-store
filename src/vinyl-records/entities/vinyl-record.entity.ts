@@ -31,7 +31,10 @@ export class VinylRecord {
   @CreateDateColumn()
       createdAt: Date;
 
-  @OneToMany(() => Review, (review) => review.vinylRecord)
+  @OneToMany(() => Review, (review) => review.vinylRecord, {
+      cascade: true,
+      onDelete: 'CASCADE',
+  })
       reviews: Review[];
 
   @OneToMany(() => Purchase, (purchase) => purchase.vinylRecord)
