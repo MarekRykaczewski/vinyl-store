@@ -75,7 +75,11 @@ describe('ReviewService', () => {
             score: 5,
         };
 
-        const review = await reviewService.createReview(user, createReviewDto);
+        const review = await reviewService.createReview(
+            user,
+            createReviewDto,
+            vinylRecord.id
+        );
 
         assert.ok(review); // Check that the review is created
         assert.strictEqual(review.content, 'Amazing album, loved it!'); // Check the content of the review

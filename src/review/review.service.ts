@@ -42,9 +42,10 @@ export class ReviewService {
 
     async createReview(
         user: User,
-        createReviewDto: CreateReviewDto
+        createReviewDto: CreateReviewDto,
+        vinylRecordId: number
     ): Promise<Review> {
-        const { vinylRecordId, content, score } = createReviewDto;
+        const { content, score } = createReviewDto;
 
         const vinylRecord = await this.vinylRecordRepository.findOne({
             where: { id: vinylRecordId },

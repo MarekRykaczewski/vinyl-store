@@ -2,6 +2,7 @@ import {
     Body,
     Controller,
     Delete,
+    ForbiddenException,
     Get,
     Patch,
     Req,
@@ -17,6 +18,7 @@ import {
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from './user.entity';
+import { RequestWithUser } from 'src/types/requestWithUser';
 
 @ApiTags('User')
 @ApiBearerAuth()
@@ -80,9 +82,16 @@ export class UserController {
       status: 401,
       description: 'Unauthorized - Bearer token missing or invalid',
   })
-  async deleteProfile(@Req() req: Request) {
-      const userProfile = (req as Request & { user: User }).user;
+  async deleteProfile(@Req() req: RequestWithUser) {
+      const userProfile = req.user;
       const userId = userProfile.id;
+
+      if (!userId || req.user.id !== userId) {
+          throw new ForbiddenException(
+              'You are not allowed to delete this profile'
+          );
+      }
+
       await this.userService.deleteProfile(userId);
       return { message: 'Profile deleted successfully' };
   }

@@ -50,12 +50,15 @@ export class ReviewController {
     @Req() req
     ) {
         const user = req.user;
-        createReviewDto.vinylRecordId = vinylRecordId;
-        return this.reviewService.createReview(user, createReviewDto);
+        return this.reviewService.createReview(
+            user,
+            createReviewDto,
+            vinylRecordId
+        );
     }
 
   @ApiBearerAuth()
-  @Delete(':id')
+  @Delete('/reviews/:id')
   @UseGuards(AuthGuard('jwt'), AdminGuard)
   @ApiOperation({
       summary: 'Delete a review',

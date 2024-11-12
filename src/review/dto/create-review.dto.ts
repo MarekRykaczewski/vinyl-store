@@ -1,19 +1,7 @@
-import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
-import {
-    IsInt,
-    IsString,
-    Min,
-    Max,
-    IsNotEmpty,
-    IsPositive,
-} from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsInt, IsString, Min, Max, IsNotEmpty } from 'class-validator';
 
 export class CreateReviewDto {
-  @ApiHideProperty()
-  @IsInt() // Ensure vinylRecordId is an integer
-  @IsPositive() // Ensure the vinylRecordId is positive
-      vinylRecordId: number;
-
   @ApiProperty({
       description: 'The content of the review written by the user',
       example:

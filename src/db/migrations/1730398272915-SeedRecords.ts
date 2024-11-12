@@ -33,6 +33,9 @@ export class SeedRecords1730398272915 implements MigrationInterface {
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(
+            'DELETE FROM reviews WHERE vinylRecordId IS NOT NULL'
+        );
         await queryRunner.query('DELETE FROM vinyl_records');
     }
 }

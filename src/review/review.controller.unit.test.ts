@@ -24,7 +24,6 @@ test('ReviewController - createReview', async () => {
     const createReviewDto: CreateReviewDto = {
         content: 'Great vinyl!',
         score: 5,
-        vinylRecordId: 1,
     };
     const mockResponse = {
         id: 1,
